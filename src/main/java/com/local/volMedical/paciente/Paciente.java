@@ -18,6 +18,7 @@ public class Paciente {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
+    private Boolean activo;
     private String nombre;
     private String email;
     private String documento_identidad;
@@ -28,10 +29,30 @@ public class Paciente {
     public Paciente(DatosPaciente datos) {
 
         this.id = null;
+        this.activo = true;
         this.nombre = datos.nombre();
         this.email = datos.email();
         this.documento_identidad = datos.documento_identidad();
         this.telefono = datos.telefono();
         this.direccion = new Direccion(datos.direccion());
+    }
+
+    public void actualizarInformaciones(DatosActualizacionPaciente datos) {
+
+        if (datos.nombre() != null) {
+            this.nombre = datos.nombre();
+        }
+
+        if (datos.telefono() != null) {
+            this.telefono = datos.telefono();
+        }
+
+        if (datos.documento_identidad() != null) {
+            this.documento_identidad = datos.documento_identidad();
+        }
+    }
+
+    public void eliminar() {
+        this.activo = false;
     }
 }

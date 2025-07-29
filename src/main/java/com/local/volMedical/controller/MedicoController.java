@@ -1,10 +1,7 @@
 package com.local.volMedical.controller;
 
 
-import com.local.volMedical.medico.DatosListaMedico;
-import com.local.volMedical.medico.DatosRegistroMedico;
-import com.local.volMedical.medico.Medico;
-import com.local.volMedical.medico.MedicoRepository;
+import com.local.volMedical.medico.*;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
@@ -60,10 +57,11 @@ public class MedicoController {
                                      //// 🔁 Se convierte la entidad Medico al DTO
     }*/
 
-    //Paginación
+    //Paginación y ordenación
     @GetMapping
     public Page<DatosListaMedico> listar(@PageableDefault(size = 10, sort = {"nombre"}) Pageable paginacion) {
-        return repository.findAll(paginacion).map(DatosListaMedico::new);
+        //return repository.findAll(paginacion).map(DatosListaMedico::new); sin modificar x el delete
+        return repository.findAllByActivoTrue(paginacion).map(DatosListaMedico::new);
     }
 
     /*Colocaremos esta paginación dentro del método findAll.
@@ -79,6 +77,34 @@ public class MedicoController {
       Por lo tanto, eliminaremos eso también.
       Sin embargo, el Page sí comprende el método map, por lo que podemos dejarlo así.
       De esta forma, estamos devolviendo un Page.*/
+
+    @Transactional
+    @PutMapping
+    /*es similar a el post pero no podemos utilizar el DTO DatosRegistroMedico porque
+      en ese DTO todos los datos son obligatorios y no coincide con nuestras reglas de negocio para
+      el PUT donde indica que solo podemos modificar nombre, teléfono y dirección.
+      No podemos modificar correo electrónico, documento ni especialidad. Entonces tendremos que
+      crear un nuevo DTO para la actualización*/
+
+    public void actualizar(@RequestBody @Valid DatosActualizacionMedico datos) {
+
+        Medico medico = repository.getReferenceById(datos.id());//obtenemos el medico por el id que fue pasado por el frontend.
+
+        medico.actualizarInformaciones(datos);//creamos el metodo para realizar la actualización
+
+    }
+
+    @Transactional
+    @DeleteMapping("/{id}")
+    public void eliminar(@PathVariable Long id) {
+        //repository.deleteById(id);//esto elimina completamento el medico
+                                  // con ese id de la base de datos. Es una eliminación fisica.
+
+        Medico medico = repository.getReferenceById(id);
+
+        medico.eliminar();//luego de esto hay que hacer unos cambios en listar
+                          // xq sino va a seguir apareciendo el medico inactivo.
+    }
 
 }
 
