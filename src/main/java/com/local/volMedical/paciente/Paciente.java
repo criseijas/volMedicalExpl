@@ -1,0 +1,37 @@
+package com.local.volMedical.paciente;
+
+import com.local.volMedical.direccion.Direccion;
+import jakarta.persistence.*;
+import lombok.AllArgsConstructor;
+import lombok.EqualsAndHashCode;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+
+@Table(name = "pacientes")
+@Entity(name = "Paciente")
+@Getter
+@NoArgsConstructor
+@AllArgsConstructor
+@EqualsAndHashCode(of = "id")
+public class Paciente {
+
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Long id;
+    private String nombre;
+    private String email;
+    private String documento_identidad;
+    private String telefono;
+    @Embedded
+    private Direccion direccion;
+
+    public Paciente(DatosPaciente datos) {
+
+        this.id = null;
+        this.nombre = datos.nombre();
+        this.email = datos.email();
+        this.documento_identidad = datos.documento_identidad();
+        this.telefono = datos.telefono();
+        this.direccion = new Direccion(datos.direccion());
+    }
+}
